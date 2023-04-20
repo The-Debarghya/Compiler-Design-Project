@@ -3,12 +3,66 @@
  */
 package cd_project;
 
+import cd_project.lexer.CustomLexer;
+import cd_project.lexer.CustomScanner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class App {
     public String getGreeting() {
         return "Hello World!";
     }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        List<String> fileData = CustomScanner.ScanInput();
+        CustomLexer clexer = new CustomLexer();
+        int i = 1;
+        HashMap<Integer, HashMap<Integer, List<CustomLexer.Tokens>>> myMap = new HashMap<Integer, HashMap<Integer, List<CustomLexer.Tokens>>>();
+        for(String line: fileData){
+            HashMap<Integer, Boolean> checkMap = new HashMap<>();
+            myMap.put(i, new HashMap<Integer, List<CustomLexer.Tokens>>());
+            for (CustomLexer.Tokens token : clexer.tokensToRegex.keySet()) {
+                Pattern p = clexer.tokensToRegex.get(token);
+                Matcher match = p.matcher(line);
+
+                while (match.find()) {
+                    System.out.println("Match found at index " + match.start());
+                    int index = match.start();
+                    if(myMap.get(i).containsKey(index)){
+                        myMap.get(i).get(index).add(token);
+                    }else{
+                        List<CustomLexer.Tokens> l = new ArrayList<>();
+                        l.add(token);
+                        myMap.get(i).put(index, l);
+                    }
+//                    if(checkMap.containsKey(index)){
+//
+//                    }else{
+//                        checkMap.put(index, true);
+//                        System.out.println("matched: " + token);
+//                    }
+                }
+//                if(match.find()){
+//                    int index = match.start();
+////                    int endIndex = match.end();
+//                    System.out.println(index);
+////                    System.out.println(endIndex);
+////                    System.out.println(line.charAt(index));
+//                    if(checkMap.containsKey(index)){
+//
+//                    }else{
+//                        checkMap.put(index, true);
+//                        System.out.println("matched: " + token);
+//                    }
+//                }
+            }
+            i += 1;
+            System.out.println("----------------------------------");
+        }
+        System.out.println(myMap);
     }
 }
