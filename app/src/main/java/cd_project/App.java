@@ -18,51 +18,17 @@ public class App {
     }
 
     public static void main(String[] args) {
-        List<String> fileData = CustomScanner.ScanInput();
-        CustomLexer clexer = new CustomLexer();
-        int i = 1;
-        HashMap<Integer, HashMap<Integer, List<CustomLexer.Tokens>>> myMap = new HashMap<Integer, HashMap<Integer, List<CustomLexer.Tokens>>>();
-        for(String line: fileData){
-            HashMap<Integer, Boolean> checkMap = new HashMap<>();
-            myMap.put(i, new HashMap<Integer, List<CustomLexer.Tokens>>());
-            for (CustomLexer.Tokens token : clexer.tokensToRegex.keySet()) {
-                Pattern p = clexer.tokensToRegex.get(token);
-                Matcher match = p.matcher(line);
-
-                while (match.find()) {
-                    System.out.println("Match found at index " + match.start());
-                    int index = match.start();
-                    if(myMap.get(i).containsKey(index)){
-                        myMap.get(i).get(index).add(token);
-                    }else{
-                        List<CustomLexer.Tokens> l = new ArrayList<>();
-                        l.add(token);
-                        myMap.get(i).put(index, l);
-                    }
-//                    if(checkMap.containsKey(index)){
-//
-//                    }else{
-//                        checkMap.put(index, true);
-//                        System.out.println("matched: " + token);
-//                    }
-                }
-//                if(match.find()){
-//                    int index = match.start();
-////                    int endIndex = match.end();
-//                    System.out.println(index);
-////                    System.out.println(endIndex);
-////                    System.out.println(line.charAt(index));
-//                    if(checkMap.containsKey(index)){
-//
-//                    }else{
-//                        checkMap.put(index, true);
-//                        System.out.println("matched: " + token);
-//                    }
-//                }
+        if (args.length > 0) {
+            try {
+                CustomScanner cs = new CustomScanner();
+                String fileData = cs.ScanInput(args[0]);
+                CustomLexer l = new CustomLexer(fileData);
+                l.printTokens();
+            } catch(Exception e) {
+                CustomLexer.error(-1, -1, "Exception: " + e.getMessage());
             }
-            i += 1;
-            System.out.println("----------------------------------");
+        } else {
+            CustomLexer.error(-1, -1, "No args");
         }
-        System.out.println(myMap);
     }
 }
