@@ -5,6 +5,8 @@ package cd_project;
 
 import cd_project.lexer.CustomLexer;
 import cd_project.lexer.CustomScanner;
+import cd_project.parser.Parser;
+// package cd_project.lexer.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class App {
-    ArrayList<TokenType> a = new ArrayList<>();
+    static ArrayList<CustomLexer.TokenType> ids = new ArrayList<>();
+
+    static HashMap<String, List<List<Integer>>> symbolTable = new HashMap<String, List<List<Integer>>>();
     public String getGreeting() {
         return "Hello World!";
     }
@@ -24,8 +28,30 @@ public class App {
                 CustomScanner cs = new CustomScanner();
                 String fileData = cs.ScanInput(args[0]);
                 CustomLexer l = new CustomLexer(fileData);
-                l.printTokens(a);
-                System.out.println(a);
+                l.printTokens(ids, symbolTable);
+                System.out.println("\n\n------------------------------------------\n\n");
+                System.out.println("Symbol Table");
+                System.out.println(String.format("%6s  %6s", "id", "line_pos"));
+                System.out.println();
+                for(String id: symbolTable.keySet()){
+                    List<List<Integer>> list = symbolTable.get(id);
+                    System.out.print(id + " : ");
+                    for(List<Integer> ll: list){
+                        String toPrint = String.format(" %2d  %2d |", ll.get(0), ll.get(1));
+                        System.out.print(toPrint);
+                    }
+                    System.out.println();
+                }
+                System.out.println("\n\n------------------------------------------\n\n");
+                System.out.println(ids);
+                System.out.println("\n\n------------------------------------------\n\n");
+                Parser parser = new Parser();
+                List<String> stringIds = new ArrayList<String>();
+                for(CustomLexer.TokenType t: ids){
+                    String stringId = new String(String.valueOf(t));
+                    stringIds.add(stringId);
+                }
+                parser.parse(stringIds);
             } catch(Exception e) {
                 CustomLexer.error(-1, -1, "Exception: " + e.getMessage());
             }

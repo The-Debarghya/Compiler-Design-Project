@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.*;
 import java.util.Scanner;
-
 public class CustomLexer {
     private int line;
     private int pos;
@@ -288,7 +287,7 @@ public class CustomLexer {
         return this.chr;
     }
 
-    public void printTokens(ArrayList<TokenType> a) {
+    public void printTokens(ArrayList<TokenType> a, HashMap<String, List<List<Integer>>> symbolTable) {
         Token t;
         int line = 1;
         while ((t = getToken()).tokentype != TokenType.EOI) {
@@ -297,9 +296,46 @@ public class CustomLexer {
                 System.out.println("------------------------------------------");
             }
             System.out.println(t);
-            a.add(t);
+            a.add(t.tokentype);
+            // checking for tokens and adding to symbol table
+            if(t.tokentype == TokenType.Identifier){
+                // if already exists
+                List<List<Integer>> list = symbolTable.get(t.value);
+                if(list!= null && list.size() > 0){
+                    List<Integer> l = new ArrayList<Integer>();
+                    l.add(t.line);
+                    l.add(t.pos);
+                    list.add(l);
+                    symbolTable.put(t.value, list);
+                }else{
+                    list = new ArrayList<List<Integer>>();
+                    List<Integer> l = new ArrayList<Integer>();
+                    l.add(t.line);
+                    l.add(t.pos);
+                    list.add(l);
+                    symbolTable.put(t.value, list);
+                }
+            }
         }
         System.out.println(t);
-        a.add(t);
+//        a.add(t.tokentype);
+//        if(t.tokentype == TokenType.Identifier){
+//            // if already exists
+//            List<List<Integer>> list = symbolTable.get(t.value);
+//            if(list!= null && list.size() > 0){
+//                List<Integer> l = new ArrayList<Integer>();
+//                l.add(t.line);
+//                l.add(t.pos);
+//                list.add(l);
+//                symbolTable.put(t.value, list);
+//            }else{
+//                list = new ArrayList<List<Integer>>();
+//                List<Integer> l = new ArrayList<Integer>();
+//                l.add(t.line);
+//                l.add(t.pos);
+//                list.add(l);
+//                symbolTable.put(t.value, list);
+//            }
+//        }
     }
 }
