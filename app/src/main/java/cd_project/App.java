@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class App {
+    ArrayList<TokenType> a = new ArrayList<>();
     public String getGreeting() {
         return "Hello World!";
     }
@@ -23,7 +24,8 @@ public class App {
                 CustomScanner cs = new CustomScanner();
                 String fileData = cs.ScanInput(args[0]);
                 CustomLexer l = new CustomLexer(fileData);
-                l.printTokens();
+                l.printTokens(a);
+                System.out.println(a);
             } catch(Exception e) {
                 CustomLexer.error(-1, -1, "Exception: " + e.getMessage());
             }

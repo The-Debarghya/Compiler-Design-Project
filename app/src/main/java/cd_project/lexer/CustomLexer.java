@@ -14,6 +14,7 @@ public class CustomLexer {
     private String s;
 
     Map<String, TokenType> keywords = new HashMap<>();
+    
 
     static class Token {
         public TokenType tokentype;
@@ -44,7 +45,7 @@ public class CustomLexer {
         }
     }
 
-    static enum TokenType {
+    public static enum TokenType {
         // constants
         IntegerConst, FloatConst, StringConst, 
 
@@ -287,7 +288,7 @@ public class CustomLexer {
         return this.chr;
     }
 
-    public void printTokens() {
+    public void printTokens(ArrayList<TokenType> a) {
         Token t;
         int line = 1;
         while ((t = getToken()).tokentype != TokenType.EOI) {
@@ -296,7 +297,9 @@ public class CustomLexer {
                 System.out.println("------------------------------------------");
             }
             System.out.println(t);
+            a.add(t);
         }
         System.out.println(t);
+        a.add(t);
     }
 }
