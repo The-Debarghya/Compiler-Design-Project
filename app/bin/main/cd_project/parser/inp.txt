@@ -2,19 +2,19 @@ program -> main_type MAIN LPAREN parameters_optional RPAREN LBRACE declarations_
 declarations -> declarations declaration | declaration
 declaration -> type names SEMI
 type -> INT | FLOAT | VOID | STRING
-names -> names COMMA Identifier | names COMMA init | Identifier | init
-init -> Identifier ASSIGN constant
+names -> names COMMA ID | names COMMA init | ID | init
+init -> ID ASSIGN constant
 statements -> statements statement | statement
 statement -> for_statement | assigment SEMI | CONTINUE SEMI | BREAK SEMI 
 for_statement -> FOR LPAREN assigment SEMI expression SEMI expression RPAREN tail
 tail -> LBRACE statements RBRACE
-expression -> ADDOP expression expression | DIFOP expression expression | GREATERTHAN expression expression | LESSTHAN expression expression | GREATEREQUALS expression expression | LESSEQUALS expression expression | LPAREN expression RPAREN | Identifier | constant
-constant -> IntegerConst | FloatConst | StringConst
-assigment -> Identifier ASSIGN expression
+expression -> ADDOP expression expression | DIFOP expression expression | RELOP expression expression | LPAREN expression RPAREN | ID | constant 
+constant -> ICONST | FCONST | SCONST
+assigment -> ID ASSIGN expression
 main_type -> INT | VOID 
 parameters_optional -> parameters | epsilon
 parameters -> parameters COMMA parameter | parameter
-parameter -> type Identifier
+parameter -> type ID
 declarations_optional -> declarations | epsilon
 statements_optional -> statements | epsilon
-main_return -> RETURN IntegerConst SEMI | RETURN SEMI | epsilon
+main_return -> RETURN ICONST SEMI | RETURN SEMI | epsilon

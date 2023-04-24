@@ -9,7 +9,7 @@ public class Parser {
 
     public static void parse(List<String> ids) throws Exception {
 
-            Path fileName = Path.of("./grammar2.txt");
+            Path fileName = Path.of("./inp.txt");
             String str = Files.readString(fileName);
             Grammar g = new Grammar(str);
             LR1Parser lr1parser = new LR1Parser(g);
