@@ -3,6 +3,9 @@
 
 # Ignore Gradle build output directory
 build
+bin
+.vscode
+.idea
 
 *.class
 

@@ -6,13 +6,10 @@ package cd_project;
 import cd_project.lexer.CustomLexer;
 import cd_project.lexer.CustomScanner;
 import cd_project.parser.Parser;
-// package cd_project.lexer.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class App {
     static ArrayList<CustomLexer.TokenType> ids = new ArrayList<>();
@@ -25,8 +22,7 @@ public class App {
     public static void main(String[] args) {
         if (args.length > 0) {
             try {
-                CustomScanner cs = new CustomScanner();
-                String fileData = cs.ScanInput(args[0]);
+                String fileData = CustomScanner.ScanInput(args[0]);
                 CustomLexer l = new CustomLexer(fileData);
                 l.printTokens(ids, symbolTable);
                 System.out.println("\n\n------------------------------------------\n\n");
@@ -45,13 +41,13 @@ public class App {
                 System.out.println("\n\n------------------------------------------\n\n");
                 System.out.println(ids);
                 System.out.println("\n\n------------------------------------------\n\n");
-                Parser parser = new Parser();
+                
                 List<String> stringIds = new ArrayList<String>();
                 for(CustomLexer.TokenType t: ids){
                     String stringId = new String(String.valueOf(t));
                     stringIds.add(stringId);
                 }
-                parser.parse(stringIds);
+                Parser.parse(stringIds);
             } catch(Exception e) {
                 CustomLexer.error(-1, -1, "Exception: " + e.getMessage());
             }

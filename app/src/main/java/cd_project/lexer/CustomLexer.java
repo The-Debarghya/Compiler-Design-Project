@@ -1,10 +1,8 @@
 package cd_project.lexer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.*;
-import java.util.Scanner;
+
 public class CustomLexer {
     private int line;
     private int pos;
@@ -13,16 +11,20 @@ public class CustomLexer {
     private String s;
 
     Map<String, TokenType> keywords = new HashMap<>();
-    
 
     static class Token {
         public TokenType tokentype;
         public String value;
         public int line;
         public int pos;
+
         Token(TokenType token, String value, int line, int pos) {
-            this.tokentype = token; this.value = value; this.line = line; this.pos = pos;
+            this.tokentype = token;
+            this.value = value;
+            this.line = line;
+            this.pos = pos;
         }
+
         @Override
         public String toString() {
             String result = String.format("%5d  %5d %-15s", this.line, this.pos, this.tokentype);
@@ -36,8 +38,10 @@ public class CustomLexer {
                 case StringConst:
                     result += String.format(" \"%s\"", value);
                     break;
-                case FloatConst: 
+                case FloatConst:
                     result += String.format(" %s", value);
+                    break;
+                default:
                     break;
             }
             return result;
@@ -46,19 +50,19 @@ public class CustomLexer {
 
     public static enum TokenType {
         // constants
-        IntegerConst, FloatConst, StringConst, 
+        IntegerConst, FloatConst, StringConst,
 
         // keywords
         INT, STRING, FLOAT, FOR, CONTINUE, BREAK, VOID, RETURN, MAIN,
-        
+
         // identifier
-        Identifier, 
+        Identifier,
 
         // operators
-        GREATERTHAN, LESSTHAN, GREATEREQUALS, LESSEQUALS, 
+        GREATERTHAN, LESSTHAN, GREATEREQUALS, LESSEQUALS,
         ADDOP, DIFOP, LPAREN, RPAREN, LBRACE, RBRACE, SEMI,
         COMMA, ASSIGN,
-        
+
         // others
         EQUAL, EOI
 
@@ -89,19 +93,21 @@ public class CustomLexer {
         this.keywords.put("main", TokenType.MAIN);
         this.keywords.put("for", TokenType.FOR);
     }
+
     Token follow(char expect, TokenType ifyes, TokenType ifno, int line, int pos) {
         if (getNextChar() == expect) {
             getNextChar();
             return new Token(ifyes, "", line, pos);
         }
         if (ifno == TokenType.EOI) {
-            error(line, pos, String.format("follow: unrecognized character: (%d) '%c'", (int)this.chr, this.chr));
+            error(line, pos, String.format("follow: unrecognized character: (%d) '%c'", (int) this.chr, this.chr));
         }
         return new Token(ifno, "", line, pos);
     }
+
     Token char_lit(int line, int pos) {
         char c = getNextChar(); // skip opening quote
-        int n = (int)c;
+        int n = (int) c;
         if (c == '\'') {
             error(line, pos, "empty character constant");
         } else if (c == '\\') {
@@ -120,6 +126,7 @@ public class CustomLexer {
         getNextChar();
         return new Token(TokenType.IntegerConst, "" + n, line, pos);
     }
+
     Token string_lit(char start, int line, int pos) {
         String result = "";
         while (getNextChar() != start) {
@@ -134,63 +141,43 @@ public class CustomLexer {
         getNextChar();
         return new Token(TokenType.StringConst, result, line, pos);
     }
-    // Token div_or_comment(int line, int pos) {
-    //     if (getNextChar() != '*') {
-    //         return new Token(TokenType.Op_divide, "", line, pos);
-    //     }
-    //     getNextChar();
-    //     while (true) {
-    //         if (this.chr == '\u0000') {
-    //             error(line, pos, "EOF in comment");
-    //         } else if (this.chr == '*') {
-    //             if (getNextChar() == '/') {
-    //                 getNextChar();
-    //                 return getToken();
-    //             }
-    //         } else {
-    //             getNextChar();
-    //         }
-    //     }
-    // }
+
     Token identifier_or_integer(int line, int pos) {
-//        System.out.println("inside identifier_or_integer");
-        // boolean is_number = true;
+
         String text = "";
 
         // identifier or integer
         while (Character.isAlphabetic(this.chr) || Character.isDigit(this.chr) || this.chr == '_' || this.chr == '.') {
             text += this.chr;
-            // if (!Character.isDigit(this.chr)) {
-            //     is_number = false;
-            // }
             getNextChar();
         }
         // System.out.println(text);
 
         if (text.equals("")) {
-            error(line, pos, String.format("identifer_or_integer unrecognized character: (%d) %c", (int)this.chr, this.chr));
+            error(line, pos,
+                    String.format("identifer_or_integer unrecognized character: (%d) %c", (int) this.chr, this.chr));
         }
 
         int ind = text.indexOf('.');
         if (Character.isDigit(text.charAt(0))) {
-            try{
+            try {
 
-                if(ind != -1){
+                if (ind != -1) {
                     String str[] = text.split("\\.");
                     List<String> l = new ArrayList<String>();
                     l = Arrays.asList(str);
                     // System.out.println(l);
-                    if(l.size()!=2) error(line, pos, String.format("invalid number: %s", text));
+                    if (l.size() != 2)
+                        error(line, pos, String.format("invalid number: %s", text));
                 }
                 float num_float = Float.parseFloat(text);
-                try{
+                try {
                     int num_int = Integer.parseInt(text);
-
                     return new Token(TokenType.IntegerConst, text, line, pos);
-                }catch(Exception e){
+                } catch (Exception e) {
                     return new Token(TokenType.FloatConst, text, line, pos);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 error(line, pos, String.format("invalid number: %s", text));
             }
         }
@@ -199,11 +186,12 @@ public class CustomLexer {
             return new Token(this.keywords.get(text), "", line, pos);
         }
         // check for identifier
-        if(ind != -1){
+        if (ind != -1) {
             error(line, pos, String.format("invalid identifier: %s", text));
         }
         return new Token(TokenType.Identifier, text, line, pos);
     }
+
     Token getToken() {
         int line, pos;
         while (Character.isWhitespace(this.chr)) {
@@ -213,62 +201,89 @@ public class CustomLexer {
         pos = this.pos;
 
         switch (this.chr) {
-            case '\u0000': return new Token(TokenType.EOI, "", this.line, this.pos);
-        //    case '/': return div_or_comment(line, pos);
-            case '\'': return char_lit(line, pos);
-            // case '<': return follow('=', TokenType.Op_lessequal, TokenType.Op_less, line, pos);
-            // case '>': return follow('=', TokenType.Op_greaterequal, TokenType.Op_greater, line, pos);
-            case '=': return follow('=', TokenType.EQUAL, TokenType.ASSIGN, line, pos);
-            // case '!': return follow('=', TokenType.Op_notequal, TokenType.Op_not, line, pos);
-            // case '&': return follow('&', TokenType.Op_and, TokenType.End_of_input, line, pos);
-            // case '|': return follow('|', TokenType.Op_or, TokenType.End_of_input, line, pos);
-            case '"': return string_lit(this.chr, line, pos);
-            case '{': getNextChar(); return new Token(TokenType.LBRACE, "", line, pos);
-            case '}': getNextChar(); return new Token(TokenType.RBRACE, "", line, pos);
-            case '(': getNextChar(); return new Token(TokenType.LPAREN, "", line, pos);
-            case ')': getNextChar(); return new Token(TokenType.RPAREN, "", line, pos);
-            case '+': getNextChar(); return new Token(TokenType.ADDOP, "", line, pos);
-            case '-': getNextChar(); return new Token(TokenType.DIFOP, "", line, pos);
-            // case '*': getNextChar(); return new Token(TokenType.Op_multiply, "", line, pos);
+            case '\u0000':
+                return new Token(TokenType.EOI, "", this.line, this.pos);
+            // case '/': return div_or_comment(line, pos);
+            case '\'':
+                return char_lit(line, pos);
+            // case '<': return follow('=', TokenType.Op_lessequal, TokenType.Op_less, line,
+            // pos);
+            // case '>': return follow('=', TokenType.Op_greaterequal, TokenType.Op_greater,
+            // line, pos);
+            case '=':
+                return follow('=', TokenType.EQUAL, TokenType.ASSIGN, line, pos);
+            // case '!': return follow('=', TokenType.Op_notequal, TokenType.Op_not, line,
+            // pos);
+            // case '&': return follow('&', TokenType.Op_and, TokenType.End_of_input, line,
+            // pos);
+            // case '|': return follow('|', TokenType.Op_or, TokenType.End_of_input, line,
+            // pos);
+            case '"':
+                return string_lit(this.chr, line, pos);
+            case '{':
+                getNextChar();
+                return new Token(TokenType.LBRACE, "", line, pos);
+            case '}':
+                getNextChar();
+                return new Token(TokenType.RBRACE, "", line, pos);
+            case '(':
+                getNextChar();
+                return new Token(TokenType.LPAREN, "", line, pos);
+            case ')':
+                getNextChar();
+                return new Token(TokenType.RPAREN, "", line, pos);
+            case '+':
+                getNextChar();
+                return new Token(TokenType.ADDOP, "", line, pos);
+            case '-':
+                getNextChar();
+                return new Token(TokenType.DIFOP, "", line, pos);
+            // case '*': getNextChar(); return new Token(TokenType.Op_multiply, "", line,
+            // pos);
             // case '%': getNextChar(); return new Token(TokenType.Op_mod, "", line, pos);
-            case ';': getNextChar(); return new Token(TokenType.SEMI, "", line, pos);
-            case ',': getNextChar(); return new Token(TokenType.COMMA, "", line, pos);
+            case ';':
+                getNextChar();
+                return new Token(TokenType.SEMI, "", line, pos);
+            case ',':
+                getNextChar();
+                return new Token(TokenType.COMMA, "", line, pos);
             case '.': {
                 getNextChar();
-                // .gt. .lt. 
-                if(this.chr == 'g'){
+                // .gt. .lt.
+                if (this.chr == 'g') {
                     getNextChar();
                     char next = this.chr;
                     getNextChar();
                     char ending = this.chr;
-                    if(next == 't' && ending=='.'){
+                    if (next == 't' && ending == '.') {
                         getNextChar();
                         return new Token(TokenType.GREATERTHAN, "", line, pos);
-                    }else if(next == 'e' && ending=='.'){
+                    } else if (next == 'e' && ending == '.') {
                         getNextChar();
                         return new Token(TokenType.GREATEREQUALS, "", line, pos);
-                    }else{
+                    } else {
                         error(line, pos, String.format("invalid . : %s", "."));
                     }
-                }else if(this.chr == 'l'){
+                } else if (this.chr == 'l') {
                     getNextChar();
                     char next = this.chr;
                     getNextChar();
                     char ending = this.chr;
-                    if(next == 't' && ending=='.'){
+                    if (next == 't' && ending == '.') {
                         getNextChar();
                         return new Token(TokenType.LESSTHAN, "", line, pos);
-                    }else if(next == 'e' && ending=='.'){
+                    } else if (next == 'e' && ending == '.') {
                         getNextChar();
                         return new Token(TokenType.LESSEQUALS, "", line, pos);
-                    }else{
+                    } else {
                         error(line, pos, String.format("invalid . : %s", "."));
                     }
-                }else{
+                } else {
                     error(line, pos, String.format("invalid . : %s", "."));
                 }
             }
-            default: return identifier_or_integer(line, pos);
+            default:
+                return identifier_or_integer(line, pos);
         }
     }
 
@@ -291,23 +306,23 @@ public class CustomLexer {
         Token t;
         int line = 1;
         while ((t = getToken()).tokentype != TokenType.EOI) {
-            if(t.line != line){
+            if (t.line != line) {
                 line++;
                 System.out.println("------------------------------------------");
             }
             System.out.println(t);
             a.add(t.tokentype);
             // checking for tokens and adding to symbol table
-            if(t.tokentype == TokenType.Identifier){
+            if (t.tokentype == TokenType.Identifier) {
                 // if already exists
                 List<List<Integer>> list = symbolTable.get(t.value);
-                if(list!= null && list.size() > 0){
+                if (list != null && list.size() > 0) {
                     List<Integer> l = new ArrayList<Integer>();
                     l.add(t.line);
                     l.add(t.pos);
                     list.add(l);
                     symbolTable.put(t.value, list);
-                }else{
+                } else {
                     list = new ArrayList<List<Integer>>();
                     List<Integer> l = new ArrayList<Integer>();
                     l.add(t.line);
@@ -318,24 +333,5 @@ public class CustomLexer {
             }
         }
         System.out.println(t);
-//        a.add(t.tokentype);
-//        if(t.tokentype == TokenType.Identifier){
-//            // if already exists
-//            List<List<Integer>> list = symbolTable.get(t.value);
-//            if(list!= null && list.size() > 0){
-//                List<Integer> l = new ArrayList<Integer>();
-//                l.add(t.line);
-//                l.add(t.pos);
-//                list.add(l);
-//                symbolTable.put(t.value, list);
-//            }else{
-//                list = new ArrayList<List<Integer>>();
-//                List<Integer> l = new ArrayList<Integer>();
-//                l.add(t.line);
-//                l.add(t.pos);
-//                list.add(l);
-//                symbolTable.put(t.value, list);
-//            }
-//        }
     }
 }
