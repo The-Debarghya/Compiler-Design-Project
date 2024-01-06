@@ -170,9 +170,9 @@ public class CustomLexer {
                     if (l.size() != 2)
                         error(line, pos, String.format("invalid number: %s", text));
                 }
-                float num_float = Float.parseFloat(text);
+                Float.parseFloat(text);
                 try {
-                    int num_int = Integer.parseInt(text);
+                    Integer.parseInt(text);
                     return new Token(TokenType.IntegerConst, text, line, pos);
                 } catch (Exception e) {
                     return new Token(TokenType.FloatConst, text, line, pos);
