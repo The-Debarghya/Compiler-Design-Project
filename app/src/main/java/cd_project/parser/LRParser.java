@@ -64,7 +64,7 @@ public abstract class LRParser {
         str += "\n";
 
         for (int i = 0; i < goToTable.length; i++) {
-            for (int j = 0; j < (grammar.getVariables().size()+1)*6+2; j++) {
+            for (int j = 0; j < (grammar.getVariables().size()+1)*15+2; j++) {
                 str += "-";
             }
             str += "\n";
@@ -74,7 +74,7 @@ public abstract class LRParser {
             }
             str += "\n";
         }
-        for (int j = 0; j < (grammar.getVariables().size()+1)*30+2; j++) {
+        for (int j = 0; j < (grammar.getVariables().size()+1)*15+2; j++) {
             str += "-";
         }
         return str;
